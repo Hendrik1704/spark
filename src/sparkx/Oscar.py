@@ -327,25 +327,24 @@ class Oscar:
         particle_list = []
         data = []
         num_read_lines = self.__get_num_read_lines()
-        fname = open(self.PATH_OSCAR_, 'r')
-        self.__skip_lines(fname)
-        for i in range(0, num_read_lines):
-            line = fname.readline()
-            if not line:
-                raise IndexError('Index out of range of OSCAR file')
-            elif i == 0 and '#' not in line and 'out' not in line:
-                raise ValueError('First line of the event is not a comment ' +\
-                                 'line or does not contain "out"')
-            elif 'event' in line and ('out' in line or 'in ' in line):
-                continue
-            elif '#' in line and 'end' in line:
-                particle_list.append(data)
-                data = []
-            else:
-                data_line = line.replace('\n','').split(' ')
-                particle = Particle(self.oscar_format_, data_line)
-                data.append(particle)
-        fname.close()
+        with open(self.PATH_OSCAR_, 'r') as oscar_file:
+            self.__skip_lines(oscar_file)
+            for i in range(0, num_read_lines):
+                line = oscar_file.readline()
+                if not line:
+                    raise IndexError('Index out of range of OSCAR file')
+                elif i == 0 and '#' not in line and 'out' not in line:
+                    raise ValueError('First line of the event is not a comment ' +\
+                                         'line or does not contain "out"')
+                elif 'event' in line and ('out' in line or 'in ' in line):
+                    continue
+                elif '#' in line and 'end' in line:
+                    particle_list.append(data)
+                    data = []
+                else:
+                    line = line.replace('\n','').split(' ')
+                    particle = Particle(self.oscar_format_, line)
+                    data.append(particle)
 
         # Correct num_output_per_event and num_events
         if not kwargs or 'events' not in self.optional_arguments_.keys():
